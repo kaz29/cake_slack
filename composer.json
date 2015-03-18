@@ -1,0 +1,20 @@
+{
+    "name": "kaz29/CakeSlack",
+    "type": "cakephp-plugin",
+    "description": "Slack Plugin for CakePHP",
+    "keywords": ["cakephp","debug","chat","chatops"],
+    "homepage": "https://github.com/kaz29/CakeSlack",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Kaz Watanabe",
+            "homepage": "http://kaz29.hatenablog.com/"
+        }
+    ],
+    "require": {
+        "composer/installers": "*"
+    },
+    "extra": {
+        "installer-name": "CakeSlack"
+    }
+}
