@@ -1,9 +1,9 @@
 {
-    "name": "kaz29/CakeSlack",
+    "name": "kaz29/cake_slack",
     "type": "cakephp-plugin",
     "description": "Slack Plugin for CakePHP",
     "keywords": ["cakephp","debug","chat","chatops"],
-    "homepage": "https://github.com/kaz29/CakeSlack",
+    "homepage": "https://github.com/kaz29/cake_slack",
     "license": "MIT",
     "authors": [
         {
