@@ -1,6 +1,7 @@
 <?php
+namespace CakeSlack;
 
-App::uses('HttpSocket', 'Network/Http');
+use Cake\Http\Client;
 
 class Slack
 {
@@ -9,11 +10,9 @@ class Slack
 
 	protected static function _getClient() {
 		if (static::$_client === null) {
-			static::$_client = new HttpSocket();
+			static::$_client = new Client();
 		}
 
-		static::$_client->reset(true);
-		static::$_client->request['header'] = [];
 		return static::$_client;
 	}
 
@@ -25,7 +24,10 @@ class Slack
 				'icon_emoji' => ':ghost:',
 			];
 
-			static::$_settings = array_merge($settings, Configure::read('Slack'));
+			$tmp = \Cake\Core\Configure::read('Slack');
+			if (is_array($tmp)) {
+				static::$_settings = array_merge($settings, $tmp);
+			}
 		}
 		return static::$_settings[$key];
 	}
@@ -41,6 +43,9 @@ class Slack
 		];
 
 		$token = static::settings('token');
+		if (empty($token)) {
+			return true;
+		}
 		$uri = "https://hooks.slack.com/services/{$token}";
 		$request = [
 			'header' => [
