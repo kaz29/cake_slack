@@ -5,7 +5,14 @@ use Cake\Http\Client;
 
 class Slack
 {
+	/**
+	 * @var \Cake\Http\Client
+	 */
 	protected static $_client = null;
+
+	/**
+	 * @var array
+	 */
 	protected static $_settings = null;
 
 	protected static function _getClient() {
@@ -32,15 +39,32 @@ class Slack
 		return static::$_settings[$key];
 	}
 
+	/**
+	 * Send message to slack
+	 *
+	 * @see https://api.slack.com/docs/message-attachments
+     *
+	 * @param $message string|array
+	 * @return bool
+	 */
 	public static function send($message)
 	{
 		$client = static::_getClient();
-		$payload = [
-			'channel' => static::settings('channel'),
-			'username' => static::settings('username'),
-			'text' => $message,
-			'icon_emoji' => static::settings('icon_emoji'),
-		];
+		if (is_array($message)) {
+			$payload = [
+				'channel' => static::settings('channel'),
+				'username' => static::settings('username'),
+				'icon_emoji' => static::settings('icon_emoji'),
+				'attachments' => $message,
+			];
+		} else {
+			$payload = [
+				'channel' => static::settings('channel'),
+				'username' => static::settings('username'),
+				'text' => $message,
+				'icon_emoji' => static::settings('icon_emoji'),
+			];
+		}
 
 		$token = static::settings('token');
 		if (empty($token)) {
