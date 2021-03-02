@@ -1,19 +1,25 @@
 <?php
+namespace CakeSlack;
 
-App::uses('HttpSocket', 'Network/Http');
+use Cake\Http\Client;
 
 class Slack
 {
+	/**
+	 * @var \Cake\Http\Client
+	 */
 	protected static $_client = null;
+
+	/**
+	 * @var array
+	 */
 	protected static $_settings = null;
 
 	protected static function _getClient() {
 		if (static::$_client === null) {
-			static::$_client = new HttpSocket();
+			static::$_client = new Client();
 		}
 
-		static::$_client->reset(true);
-		static::$_client->request['header'] = [];
 		return static::$_client;
 	}
 
@@ -25,22 +31,45 @@ class Slack
 				'icon_emoji' => ':ghost:',
 			];
 
-			static::$_settings = array_merge($settings, Configure::read('Slack'));
+			$tmp = \Cake\Core\Configure::read('Slack');
+			if (is_array($tmp)) {
+				static::$_settings = array_merge($settings, $tmp);
+			}
 		}
 		return static::$_settings[$key];
 	}
 
+	/**
+	 * Send message to slack
+	 *
+	 * @see https://api.slack.com/docs/message-attachments
+     *
+	 * @param $message string|array
+	 * @return bool
+	 */
 	public static function send($message)
 	{
 		$client = static::_getClient();
-		$payload = [
-			'channel' => static::settings('channel'),
-			'username' => static::settings('username'),
-			'text' => $message,
-			'icon_emoji' => static::settings('icon_emoji'),
-		];
+		if (is_array($message)) {
+			$payload = [
+				'channel' => static::settings('channel'),
+				'username' => static::settings('username'),
+				'icon_emoji' => static::settings('icon_emoji'),
+				'attachments' => $message,
+			];
+		} else {
+			$payload = [
+				'channel' => static::settings('channel'),
+				'username' => static::settings('username'),
+				'text' => $message,
+				'icon_emoji' => static::settings('icon_emoji'),
+			];
+		}
 
 		$token = static::settings('token');
+		if (empty($token)) {
+			return true;
+		}
 		$uri = "https://hooks.slack.com/services/{$token}";
 		$request = [
 			'header' => [
