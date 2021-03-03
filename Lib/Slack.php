@@ -5,6 +5,7 @@ namespace CakeSlack;
 
 use Cake\Http\Client;
 use Cake\Core\Configure;
+use Cake\Http\Client\Response;
 
 class Slack
 {
@@ -26,7 +27,7 @@ class Slack
         return static::$_client;
     }
 
-    public static function settings($key) {
+    public static function settings(?string $key = null) {
         if (static::$_settings === null) {
             $settings = [
                 'channel' => '#general',
@@ -39,7 +40,8 @@ class Slack
                 static::$_settings = $tmp + $settings;
             }
         }
-        return static::$_settings[$key];
+
+        return ($key === null) ? static::$_settings : static::$_settings[$key];
     }
 
     /**
@@ -48,11 +50,11 @@ class Slack
      * @see https://api.slack.com/docs/message-attachments
      *
      * @param $message string|array
-     * @return bool
+     * @return bool | Cake\Http\Client\Response
      */
-    public static function send($message, array $settings = []): bool
+    public static function send($message, array $settings = []): bool | Response
     {
-        $settings = $settings + static::settings('channel');
+        $settings = $settings + self::settings();
         $client = static::_getClient();
         if (is_array($message)) {
             $payload = [
@@ -82,8 +84,8 @@ class Slack
         ];
 
         $response = $client->post($uri, json_encode($payload), $request);
-        if ($response->code !== 200 || $response->body !== 'ok') {
-            return false;
+        if ($response->isSuccess() || $response->body !== 'ok') {
+            return $response;
         }
 
         return true;
