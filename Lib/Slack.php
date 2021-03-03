@@ -5,43 +5,40 @@ namespace CakeSlack;
 
 use Cake\Http\Client;
 use Cake\Core\Configure;
+use Cake\Core\InstanceConfigTrait;
 use Cake\Http\Client\Response;
 
 class Slack
 {
+    use InstanceConfigTrait;
+
     /**
      * @var \Cake\Http\Client
      */
-    protected static $_client = null;
+    protected $_client = null;
 
     /**
+     * Default configuration for the client.
+     *
      * @var array
      */
-    protected static $_settings = null;
+    protected $_defaultConfig = [
+        'channel' => '#general',
+        'username' => 'CakeSlack',
+        'icon_emoji' => ':ghost:',
+    ];
 
-    protected static function _getClient() {
-        if (static::$_client === null) {
-            static::$_client = new Client();
-        }
-
-        return static::$_client;
+    public function __construct(array $config = [])
+    {
+        $this->setConfig($config);
     }
 
-    public static function settings(?string $key = null) {
-        if (static::$_settings === null) {
-            $settings = [
-                'channel' => '#general',
-                'username' => 'cakephp',
-                'icon_emoji' => ':ghost:',
-            ];
-
-            $tmp = Configure::read('Slack');
-            if (is_array($tmp)) {
-                static::$_settings = $tmp + $settings;
-            }
+    protected  function getClient() {
+        if ($this->_client === null) {
+            $this->_client = new Client();
         }
 
-        return ($key === null) ? static::$_settings : static::$_settings[$key];
+        return $this->_client;
     }
 
     /**
@@ -52,10 +49,10 @@ class Slack
      * @param $message string|array
      * @return bool | Cake\Http\Client\Response
      */
-    public static function send($message, array $settings = []): bool | Response
+    public function send($message, array $params = []): bool | Response
     {
-        $settings = $settings + self::settings();
-        $client = static::_getClient();
+        $settings = $params + $this->getConfig();
+        $client = $this->getClient();
         if (is_array($message)) {
             $payload = [
                 'channel' => $settings['channel'],
@@ -72,9 +69,9 @@ class Slack
             ];
         }
 
-        $token = static::settings('token');
+        $token = $this->getConfig('token');
         if (empty($token)) {
-            return true;
+            return false;
         }
         $uri = "https://hooks.slack.com/services/{$token}";
         $request = [
