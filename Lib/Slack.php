@@ -81,7 +81,7 @@ class Slack
         ];
 
         $response = $client->post($uri, json_encode($payload), $request);
-        if ($response->isSuccess() || $response->body !== 'ok') {
+        if (!$response->isSuccess() || $response->getStringBody() !== 'ok') {
             return $response;
         }
 
