@@ -83,7 +83,7 @@ class Slack
             ],
         );
     
-        if (!$response->isSuccess() || $response->getStringBody() !== 'ok') {
+        if (!$response->getStatusCode() || (string)$response->getBody() !== 'ok') {
             return false;
         }
 
