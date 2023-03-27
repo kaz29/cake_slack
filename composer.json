@@ -11,9 +11,6 @@
             "homepage": "http://kaz29.hatenablog.com/"
         }
     ],
-    "require": {
-        "composer/installers": "*"
-    },
     "autoload": {
         "psr-4": {
             "CakeSlack\\": "Lib"
