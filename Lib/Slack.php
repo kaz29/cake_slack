@@ -1,12 +1,12 @@
 <?php
 namespace CakeSlack;
 
-use Cake\Http\Client;
+use GuzzleHttp\Client;
 
 class Slack
 {
 	/**
-	 * @var \Cake\Http\Client
+	 * @var \GuzzleHttp\Client
 	 */
 	protected static $_client = null;
 
@@ -17,7 +17,10 @@ class Slack
 
 	protected static function _getClient() {
 		if (static::$_client === null) {
-			static::$_client = new Client();
+            $this->_client = new Client([
+                'timeout' => 10,
+                'connect_timeout' => 10,
+            ]);
 		}
 
 		return static::$_client;
@@ -70,17 +73,19 @@ class Slack
 		if (empty($token)) {
 			return true;
 		}
-		$uri = "https://hooks.slack.com/services/{$token}";
-		$request = [
-			'header' => [
-				'Content-Type' => 'application/json',
-			]
-		];
-
-		$response = $client->post($uri, json_encode($payload), $request);
-		if ($response->code !== 200 || $response->body !== 'ok') {
-			return false;
-		}
+        $response = $client->post(
+            "https://hooks.slack.com/services/{$token}",
+            [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => $payload,
+            ],
+        );
+    
+        if (!$response->isSuccess() || $response->getStringBody() !== 'ok') {
+            return false;
+        }
 
 		return true;
 	}
