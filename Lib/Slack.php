@@ -15,9 +15,9 @@ class Slack
 	 */
 	protected static $_settings = null;
 
-	public static function initClient($options = [])
+	public static function initClient($client)
 	{
-		static::$_client = new Client($options);
+		static::$_client = $client;
 	}
 
 	protected static function _getClient() {
